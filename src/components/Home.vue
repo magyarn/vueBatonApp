@@ -5,7 +5,18 @@
         <v-btn large router to="/competitions" class="primary">Browse Competitions</v-btn>
       </v-flex>
     </v-layout>
-    <v-layout row wrap class="my-5">
+    <v-layout>
+      <v-flex xs12 class="text-xs-center">
+        <v-progress-linear
+          v-bind:indeterminate="true"
+          class="primary"
+          :width="7"
+          :size="70"
+          v-if="loading">
+        </v-progress-linear>
+      </v-flex>
+    </v-layout>
+    <v-layout row wrap class="my-5" v-if="!loading">
       <v-flex xs12>
         <v-carousel>
           <v-carousel-item
@@ -30,6 +41,9 @@
     computed: {
       featuredCompetitions () {
         return this.$store.getters.featuredCompetitions
+      },
+      loading () {
+        return this.$store.getters.loading
       }
     },
     methods: {
@@ -52,4 +66,3 @@
     width: 100%;
   }
 </style>
-

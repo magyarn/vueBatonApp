@@ -1,7 +1,7 @@
 <template>
   <v-container class="mt-0">
     <v-layout row wrap>
-      <v-flex xs12 sm10 offset-sm1 offset-md2>
+      <v-flex xs12 sm10 offset-sm1>
         <v-card class="info">
           <v-container fluid class="white">
             <v-layout row justify-space-between v-for="competition in competitions" :key="competition.id" class="mb-3">

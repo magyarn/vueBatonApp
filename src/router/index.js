@@ -9,6 +9,7 @@ import CreateCompetition from '@/components/Competition/CreateCompetition'
 import Profile from '@/components/User/Profile'
 import SignUp from '@/components/User/SignUp'
 import SignIn from '@/components/User/SignIn'
+import AuthGuard from './auth-guard'
 
 Vue.use(Router)
 
@@ -33,12 +34,14 @@ export default new Router({
     {
       path: '/competition/new',
       name: 'CreateCompetition',
-      component: CreateCompetition
+      component: CreateCompetition,
+      beforeEnter: AuthGuard
     },
     {
       path: '/profile',
       name: 'Profile',
-      component: Profile
+      component: Profile,
+      beforeEnter: AuthGuard
     },
     {
       path: '/signup',

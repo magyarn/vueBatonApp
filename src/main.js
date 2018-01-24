@@ -8,6 +8,10 @@ import {
   VAlert,
   VCarousel,
   VCard,
+  VDivider,
+  VDialog,
+  VProgressLinear,
+  VProgressCircular,
   VTextField,
   VDatePicker,
   VTimePicker,
@@ -28,6 +32,10 @@ import router from './router'
 import { store } from './store'
 import DateFilter from './filters/date'
 import AlertCmp from './components/shared/Alert'
+import EditCompetitionDetailsDialog from './components/Competition/Edit/EditCompetitionDetailsDialog.vue'
+import EditCompetitionDateDialog from './components/Competition/Edit/EditCompetitionDateDialog.vue'
+import EditCompetitionTimeDialog from './components/Competition/Edit/EditCompetitionTimeDialog.vue'
+import RegisterDialog from './components/Competition/Register/RegisterDialog.vue'
 
 Vue.use(Vuetify, {
   components: {
@@ -35,6 +43,10 @@ Vue.use(Vuetify, {
     VAlert,
     VCarousel,
     VCard,
+    VDivider,
+    VDialog,
+    VProgressLinear,
+    VProgressCircular,
     VTextField,
     VDatePicker,
     VTimePicker,
@@ -60,6 +72,10 @@ Vue.use(Vuetify, {
 
 Vue.filter('date', DateFilter)
 Vue.component('app-alert', AlertCmp)
+Vue.component('app-edit-competition-details-dialog', EditCompetitionDetailsDialog)
+Vue.component('app-edit-competition-date-dialog', EditCompetitionDateDialog)
+Vue.component('app-edit-competition-time-dialog', EditCompetitionTimeDialog)
+Vue.component('app-register-dialog', RegisterDialog)
 
 Vue.config.productionTip = false
 
@@ -76,8 +92,15 @@ new Vue({
       authDomain: 'baton-app.firebaseapp.com',
       databaseURL: 'https://baton-app.firebaseio.com',
       projectId: 'baton-app',
-      storageBucket: 'baton-app.appspot.com'
+      storageBucket: 'gs://baton-app.appspot.com'
     }
    )
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.$store.dispatch('autoSignIn', user)
+        this.$store.dispatch('fetchUserData')
+      }
+    })
+    this.$store.dispatch('loadCompetitions')
   }
 })

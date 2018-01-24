@@ -26,14 +26,18 @@
                 v-model="location"
               >
               </v-text-field>
-              <v-text-field
-                name="imageUrl"
-                label="Image URL"
-                id="image-url"
-                required
-                v-model="imageUrl"
-              >
-              </v-text-field>
+              <v-layout>
+                <v-flex xs12>
+                  <v-btn raised class="primary"
+                  @click="onPickFile">Upload Image</v-btn>
+                  <input
+                    type="file"
+                    style="display:none"
+                    ref="fileInput"
+                    accept="image/*"
+                    @change="onFilePicked">
+                </v-flex>
+              </v-layout>
               <v-layout row>
                 <v-flex xs>
                   <img :src="imageUrl" alt="" style="max-width:100%">
@@ -76,8 +80,8 @@
     </v-layout>
     <v-layout>
       <v-flex xs12 class="sm6" offset-sm3>
-        <v-btn 
-          class="primary mx-0" 
+        <v-btn
+          class="primary mx-0"
           :disabled="!formIsValid"
           @click="onCreateCompetition">
           Create Competition
@@ -97,7 +101,8 @@
         description: '',
         date: new Date().toISOString(),
         time: new Date(),
-        id: ''
+        id: '',
+        image: null
       }
     },
     computed: {
@@ -123,16 +128,37 @@
     },
     methods: {
       onCreateCompetition () {
+        if (!this.formIsValid) {
+          return
+        }
+        if (!this.image) {
+          return
+        }
         const competitionData = {
           title: this.title,
           location: this.location,
-          imageUrl: this.imageUrl,
+          image: this.image,
           description: this.description,
-          date: this.submittableDateTime,
-          id: this.title.toLowerCase().split(' ').join('-')
+          date: this.submittableDateTime
         }
         this.$store.dispatch('createCompetition', competitionData)
-        this.$router.push(`/competitions/${competitionData.id}`)
+        this.$router.push(`/competitions/`)
+      },
+      onPickFile () {
+        this.$refs.fileInput.click()
+      },
+      onFilePicked (event) {
+        const files = event.target.files
+        let filename = files[0].name
+        if (filename.lastIndexOf('.') <= 0) {
+          return alert('Please add a valid file.')
+        }
+        const fileReader = new FileReader()
+        fileReader.addEventListener('load', () => {
+          this.imageUrl = fileReader.result
+        })
+        fileReader.readAsDataURL(files[0])
+        this.image = files[0]
       }
     }
   }
