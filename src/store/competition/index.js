@@ -1,10 +1,6 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
 import * as firebase from 'firebase'
 
-Vue.use(Vuex)
-
-export const store = new Vuex.Store({
+export default {
   state: {
     loadedCompetitions: [
       {
@@ -31,9 +27,7 @@ export const store = new Vuex.Store({
         description: 'An awesome baton competition!',
         location: 'Orlando, FL'
       }
-    ],
-    loading: false,
-    error: null
+    ]
   },
   mutations: {
     setLoadedCompetitions (state, payload) {
@@ -55,15 +49,6 @@ export const store = new Vuex.Store({
       if (payload.date) {
         competition.date = payload.date
       }
-    },
-    setLoading (state, payload) {
-      state.loading = payload
-    },
-    setError (state, payload) {
-      state.error = payload
-    },
-    clearError (state) {
-      state.error = null
     }
   },
   actions: {
@@ -167,12 +152,6 @@ export const store = new Vuex.Store({
           return competition.id === competitionid
         })
       }
-    },
-    loading (state) {
-      return state.loading
-    },
-    error (state) {
-      return state.error
     }
   }
-})
+}

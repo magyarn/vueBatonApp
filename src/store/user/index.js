@@ -1,15 +1,9 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
 import * as firebase from 'firebase'
 
-Vue.use(Vuex)
-
-export const store = new Vuex.Store({
+export default {
   state: {
     user: null,
-    userDetails: null,
-    loading: false,
-    error: null
+    userDetails: null
   },
   mutations: {
     registerUserForCompetition (state, payload) {
@@ -31,15 +25,6 @@ export const store = new Vuex.Store({
     },
     setUserDetails (state, payload) {
       state.userDetails = payload
-    },
-    setLoading (state, payload) {
-      state.loading = payload
-    },
-    setError (state, payload) {
-      state.error = payload
-    },
-    clearError (state) {
-      state.error = null
     }
   },
   actions: {
@@ -135,9 +120,6 @@ export const store = new Vuex.Store({
         }
       )
     },
-    clearError ({commit}) {
-      commit('clearError')
-    },
     autoSignIn ({commit}, payload) {
       commit('setUser', {id: payload.uid,
         registeredCompetitions: [],
@@ -223,12 +205,6 @@ export const store = new Vuex.Store({
     },
     getRegisteredCompetitions (state) {
       return state.user.registeredCompetitions
-    },
-    loading (state) {
-      return state.loading
-    },
-    error (state) {
-      return state.error
     }
   }
-})
+}
