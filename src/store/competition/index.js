@@ -152,6 +152,9 @@ export default {
           return competition.id === competitionid
         })
       }
+    },
+    featuredCompetitions (state) {
+      return state.loadedCompetitions.slice(0, 2)
     }
   }
 }
