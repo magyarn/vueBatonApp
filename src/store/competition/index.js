@@ -97,6 +97,7 @@ export default {
         return key
       })
       .then(key => {
+        console.log(payload.image)
         const filename = payload.image.name
         const ext = filename.slice(filename.lastIndexOf('.'))
         return firebase.storage().ref('competitions/' + key + '.' + ext).put(payload.image)

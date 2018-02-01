@@ -2,7 +2,14 @@
   <v-container>
     <v-layout row wrap>
       <v-flex xs12 sm10 offset-sm1>
-        <h1>My Profile</h1>
+        <v-layout row wrap>
+          <v-flex xs12>
+            <h1>My Profile</h1>
+            <app-edit-profile-dialog
+              :user="user"
+            ></app-edit-profile-dialog>
+          </v-flex>
+        </v-layout>
         <v-layout>
           <v-flex xs12>
             <v-btn raised class="primary"
@@ -15,10 +22,14 @@
               @change="onFilePicked">
           </v-flex>
         </v-layout>
+        <img :src="imageUrl" alt=""/>
+        <img atl="" :src="user.profilePicUrl" />
         <h2>Name</h2>
-        <p>{{userDetails.firstName}} {{userDetails.lastName}}</p>
+        <p>{{user.firstName}} {{user.lastName}}</p>
+        <h2>Hometown</h2>
+        <p>{{user.hometown}}</p>
         <h2>Birthday</h2>
-        <p>{{userDetails.birthday}}</p>
+        <p>{{user.birthday}}</p>
         <h2>Upcoming Competitions</h2>
         <v-container fluid grid-list-sm>
           <v-layout row wrap>
@@ -46,7 +57,8 @@
     data () {
       return {
         registeredCompetitionData: [],
-        image: null
+        image: null,
+        imageUrl: ''
       }
     },
     methods: {
@@ -65,10 +77,15 @@
         })
         fileReader.readAsDataURL(files[0])
         this.image = files[0]
+
+        const name = this.image.name
+        const ext = name.slice(filename.lastIndexOf('.'))
+        firebase.storage().ref('users/' + this.$store.getters.user.id + '.' + ext).put(this.image)
       }
     },
     computed: {
       user () {
+        console.log(this.$store.getters.user.profilePicUrl)
         return this.$store.getters.user
       },
       userDetails () {
@@ -89,6 +106,13 @@
           .catch(error => {
             console.log(error)
           })
+      })
+      firebase.storage().ref('/users/').child('profilePicDefault.png').getDownloadURL()
+      .then(url => {
+        this.imageUrl = url
+      })
+      .catch(error => {
+        console.log(error)
       })
     }
   }

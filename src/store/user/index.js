@@ -25,6 +25,21 @@ export default {
     },
     setUserDetails (state, payload) {
       state.userDetails = payload
+    },
+    updateUserProfileData (state, payload) {
+      const user = state.user
+      if (payload.firstName) {
+        user.firstName = payload.firstName
+      }
+      if (payload.lastName) {
+        user.lastName = payload.lastName
+      }
+      if (payload.hometown) {
+        user.hometown = payload.hometown
+      }
+      if (payload.birthday) {
+        user.birthday = payload.birthday
+      }
     }
   },
   actions: {
@@ -75,6 +90,14 @@ export default {
             birthday: payload.birthday,
             fbKeys: {}
           }
+          firebase.storage().ref('/users/').child('profilePicDefault.png').getDownloadURL()
+          .then(url => {
+            newUser[profilePicUrl] = url
+            console.log('ProfilePicUrl: ', newUser.profilePicUrl)
+          })
+          .catch(error => {
+            console.log(error)
+          })
           commit('setUser', newUser)
         }
       )
@@ -82,7 +105,9 @@ export default {
         firebase.database().ref('/users/' + getters.user.id + '/userDetails/').push({
           firstName: payload.firstName,
           lastName: payload.lastName,
-          birthday: payload.birthday
+          birthday: payload.birthday,
+          hometown: '',
+          profilePicUrl: ''
         })
       }
       )
@@ -104,9 +129,11 @@ export default {
           const returningUser = {
             id: user.uid,
             registeredCompetitions: [],
-            firstName: '',
+            firstName: user.firstName,
             lastName: user.lastName,
             birthday: user.birthday,
+            hometown: user.hometown,
+            profilePicUrl: user.profilePicUrl,
             fbKeys: {}
           }
           commit('setUser', returningUser)
@@ -128,6 +155,7 @@ export default {
     },
     fetchUserData ({commit, getters}) {
       commit('setLoading', true)
+      const updatedUser = {}
       firebase.database().ref('/users/' + getters.user.id + '/registeredCompetitions/').once('value')
       .then(data => {
         const dataPairs = data.val()
@@ -137,42 +165,36 @@ export default {
           registeredCompetitions.push(dataPairs[key])
           swappedPairs[dataPairs[key]] = key
         }
-        const updatedUser = {
-          id: getters.user.id,
-          registeredCompetitions: registeredCompetitions,
-          fbKeys: swappedPairs
+        updatedUser.id = getters.user.id
+        updatedUser.registeredCompetitions = registeredCompetitions
+        updatedUser.fbKeys = swappedPairs
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      firebase.database().ref('/users/' + getters.user.id + '/userDetails').once('value')
+      .then(data => {
+        const dataPairs = data.val()
+        const fbUserKey = []
+        for (let key in dataPairs) {
+          fbUserKey.push(dataPairs[key])
+        }
+        let finalUser = {
+          ...updatedUser,
+          birthday: fbUserKey[0].birthday,
+          firstName: fbUserKey[0].firstName,
+          lastName: fbUserKey[0].lastName,
+          hometown: fbUserKey[0].hometown,
+          profilePicUrl: fbUserKey[0].profilePicUrl
         }
         commit('setLoading', false)
-        commit('setUser', updatedUser)
+        commit('setUser', finalUser)
       })
       .catch(error => {
         console.log(error)
         commit('setLoading', false)
       })
     },
-    // getRegisteredCompetitions ({commit, getters}) {
-    //   commit('setLoading', true)
-    //   const registeredCompetitions = getters.user.registeredCompetitions
-    //   console.log('Comps', registeredCompetitions)
-    //   registeredCompetitions.map(competition => {
-    //     firebase.database().ref('/competitions/').once('value')
-    //       .then(data => {
-    //         const fbData = data.val()
-    //         const compData = []
-    //         for (let key in fbData) {
-    //           if (key === competition) {
-    //             compData.push(fbData[key])
-    //           }
-    //         }
-    //         commit('setRegisteredCompetitionData', compData)
-    //         commit('setLoading', false)
-    //       })
-    //       .catch(error => {
-    //         console.log(error)
-    //         commit('setLoading', false)
-    //       })
-    //   })
-    // },
     loadUserDetails ({commit, getters}) {
       commit('setLoading', true)
       firebase.database().ref('/users/' + getters.user.id + '/userDetails/').once('value')
@@ -189,6 +211,42 @@ export default {
       .catch(error => {
         console.log(error)
         commit('setLoading', false)
+      })
+    },
+    updateUserProfileData ({commit}, payload) {
+      commit('setLoading', true)
+      const updateObj = {}
+      if (payload.firstName) {
+        updateObj.firstName = payload.firstName
+      }
+      if (payload.lastName) {
+        updateObj.lastName = payload.lastName
+      }
+      if (payload.hometown) {
+        updateObj.hometown = payload.hometown
+      }
+      if (payload.birthday) {
+        updateObj.birthday = payload.birthday
+      }
+      firebase.database().ref('users').child(`${payload.id}/userDetails`).once('value')
+      .then(data => {
+        const dataPairs = data.val()
+        let detailKey = []
+        for (let key in dataPairs) {
+          detailKey.push(key)
+        }
+        firebase.database().ref('users').child(`${payload.id}/userDetails/${detailKey[0]}`).update(updateObj)
+          .then(() => {
+            commit('setLoading', false)
+            commit('updateUserProfileData', payload)
+          })
+          .catch(error => {
+            console.log(error)
+            commit('setLoading', false)
+          })
+      })
+      .catch(error => {
+        console.log(error)
       })
     },
     logout ({commit}) {

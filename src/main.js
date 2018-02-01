@@ -36,6 +36,7 @@ import EditCompetitionDetailsDialog from './components/Competition/Edit/EditComp
 import EditCompetitionDateDialog from './components/Competition/Edit/EditCompetitionDateDialog.vue'
 import EditCompetitionTimeDialog from './components/Competition/Edit/EditCompetitionTimeDialog.vue'
 import RegisterDialog from './components/Competition/Register/RegisterDialog.vue'
+import EditProfileDialogue from './components/User/EditProfileDialog.vue'
 
 Vue.use(Vuetify, {
   components: {
@@ -76,6 +77,7 @@ Vue.component('app-edit-competition-details-dialog', EditCompetitionDetailsDialo
 Vue.component('app-edit-competition-date-dialog', EditCompetitionDateDialog)
 Vue.component('app-edit-competition-time-dialog', EditCompetitionTimeDialog)
 Vue.component('app-register-dialog', RegisterDialog)
+Vue.component('app-edit-profile-dialog', EditProfileDialogue)
 
 Vue.config.productionTip = false
 
