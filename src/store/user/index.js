@@ -40,6 +40,9 @@ export default {
       if (payload.birthday) {
         user.birthday = payload.birthday
       }
+      if (payload.profilePicUrl) {
+        user.profilePicUrl = payload.profilePicUrl
+      }
     }
   },
   actions: {
@@ -85,37 +88,28 @@ export default {
           const newUser = {
             id: user.uid,
             registeredCompetitions: [],
-            firstName: '',
+            firstName: payload.firstName,
             lastName: payload.lastName,
             birthday: payload.birthday,
             fbKeys: {}
           }
           firebase.storage().ref('/users/').child('profilePicDefault.png').getDownloadURL()
           .then(url => {
-            newUser[profilePicUrl] = url
-            console.log('ProfilePicUrl: ', newUser.profilePicUrl)
+            const finalNewUser = {
+              ...newUser,
+              profilePicUrl: url
+            }
+            console.log('ProfilePicUrl: ', finalNewUser.profilePicUrl)
+            firebase.database().ref('/users/' + getters.user.id + '/userDetails/').push(finalNewUser)
+            .catch(error => {
+              console.log(error)
+            })
+            commit('setUser', finalNewUser)
           })
           .catch(error => {
             console.log(error)
+            commit('setLoading', false)
           })
-          commit('setUser', newUser)
-        }
-      )
-      .then(user => {
-        firebase.database().ref('/users/' + getters.user.id + '/userDetails/').push({
-          firstName: payload.firstName,
-          lastName: payload.lastName,
-          birthday: payload.birthday,
-          hometown: '',
-          profilePicUrl: ''
-        })
-      }
-      )
-      .catch(
-        error => {
-          commit('setLoading', false)
-          commit('setError', error)
-          console.log(error)
         }
       )
     },
@@ -227,6 +221,9 @@ export default {
       }
       if (payload.birthday) {
         updateObj.birthday = payload.birthday
+      }
+      if (payload.profilePicUrl) {
+        updateObj.profilePicUrl = payload.profilePicUrl
       }
       firebase.database().ref('users').child(`${payload.id}/userDetails`).once('value')
       .then(data => {

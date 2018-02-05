@@ -2,36 +2,15 @@ import * as firebase from 'firebase'
 
 export default {
   state: {
-    loadedCompetitions: [
-      {
-        imageUrl: 'http://www.etonline.com/sites/default/files/images/2016-04/1280_cirque_du_soleil_ovo.jpg',
-        id: 'america-youth-on-parade',
-        title: 'America Youth On Parade',
-        date: new Date(),
-        description: 'An awesome baton competition!',
-        location: 'South Bend, IN'
-      },
-      {
-        imageUrl: 'https://www.billboard.com/files/media/09-Cirque-du-Soleils-SEP7IMO-DIA-press-2017-billboard-1548.jpg',
-        id: 'congressional-cup-weekend',
-        title: 'Congressional Cup Weekend',
-        date: new Date(),
-        description: 'An awesome baton competition!',
-        location: 'Harrisburg, VA'
-      },
-      {
-        imageUrl: 'https://leeds-list.com/wp-content/uploads/2016/12/cirque-du-soleil-dec-2016-no-credit.jpg',
-        id: 'twirl-mania',
-        title: 'Twirl Mania',
-        date: new Date(),
-        description: 'An awesome baton competition!',
-        location: 'Orlando, FL'
-      }
-    ]
+    loadedCompetitions: [],
+    loadedUsers: []
   },
   mutations: {
     setLoadedCompetitions (state, payload) {
       state.loadedCompetitions = payload
+    },
+    setLoadedUsers (state, payload) {
+      state.loadedUsers = payload
     },
     createCompetition (state, payload) {
       state.loadedCompetitions.push(payload)
@@ -80,6 +59,36 @@ export default {
           }
         )
     },
+    loadUsers ({commit}) {
+      commit('setLoading', true)
+      firebase.database().ref('users').once('value')
+        .then(data => {
+          const users = []
+          const obj = data.val()
+          for (let key in obj) {
+            const userDetails = obj[key].userDetails
+            const detailKey = Object.keys(userDetails)[0]
+            const regComps = obj[key].registeredCompetitions || {}
+            const regCompsKey = Object.keys(regComps)[0] || ''
+            users.push({
+              id: key,
+              firstName: userDetails[detailKey].firstName,
+              lastName: userDetails[detailKey].lastName,
+              birthday: userDetails[detailKey].birthday,
+              profilePicUrl: userDetails[detailKey].profilePicUrl,
+              hometown: userDetails[detailKey].hometown,
+              registeredCompetitions: regComps[regCompsKey] || []
+            })
+          }
+          console.log(users)
+          commit('setLoadedUsers', users)
+          commit('setLoading', false)
+        })
+        .catch(error => {
+          console.log(error)
+          commit('setLoading', false)
+        })
+    },
     createCompetition ({commit, getters}, payload) {
       const competition = {
         title: payload.title,
@@ -97,7 +106,6 @@ export default {
         return key
       })
       .then(key => {
-        console.log(payload.image)
         const filename = payload.image.name
         const ext = filename.slice(filename.lastIndexOf('.'))
         return firebase.storage().ref('competitions/' + key + '.' + ext).put(payload.image)
@@ -146,6 +154,9 @@ export default {
       return state.loadedCompetitions.sort((a, b) => {
         return a.date > b.date
       })
+    },
+    loadedUsers (state) {
+      return state.loadedUsers
     },
     loadedCompetition (state) {
       return (competitionid) => {

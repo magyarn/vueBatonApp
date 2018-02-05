@@ -75,6 +75,10 @@
               path: '/competitions'
             },
             {
+              title: 'Athletes',
+              path: '/athletes'
+            },
+            {
               title: 'Create Competition',
               path: '/competition/new'
             },

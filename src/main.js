@@ -105,5 +105,6 @@ new Vue({
       }
     })
     this.$store.dispatch('loadCompetitions')
+    this.$store.dispatch('loadUsers')
   }
 })

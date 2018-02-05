@@ -10,6 +10,7 @@ import Profile from '@/components/User/Profile'
 import SignUp from '@/components/User/SignUp'
 import SignIn from '@/components/User/SignIn'
 import AuthGuard from './auth-guard'
+import Users from '@/components/User/Users'
 
 Vue.use(Router)
 
@@ -42,6 +43,11 @@ export default new Router({
       name: 'Profile',
       component: Profile,
       beforeEnter: AuthGuard
+    },
+    {
+      path: '/athletes',
+      name: 'Users',
+      component: Users
     },
     {
       path: '/signup',
